@@ -1,50 +1,67 @@
-# Welcome to your Expo app 👋
+# Arquitetura do Projeto
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
-
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+## Estrutura de Pastas
+```
+├── app/          # Telas (Expo Router)
+├── CONST/        # Constantes
+├── hooks/        # Hooks customizados
+├── services/     # Chamadas à API
+├── styles/       # Estilos separados
+└── types/        # Tipagens TypeScript
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Camadas
 
-## Learn more
+### `services/`
+Responsável **exclusivamente** pelas chamadas à API. Não conhece React, não gerencia estado — só busca e retorna dados.
+```typescript
+// services/pokemonService.ts
+export async function fetchPokemons(): Promise<PokemonDetails[]> { ... }
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### `hooks/`
+Faz a ponte entre o service e o componente. Gerencia estado, loading e erro — mantendo a lógica fora da tela.
+```typescript
+// hooks/usePokemons.ts
+export function usePokemons() {
+  return { pokemons, loading, error };
+}
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### `types/`
+Centraliza todas as tipagens TypeScript do projeto. Qualquer interface ou type usado em mais de um lugar vive aqui.
+```typescript
+// types/Pokemon.ts
+export interface PokemonDetails { ... }
+export interface IcolorByTypes { ... }
+```
 
-## Join the community
+### `CONST/`
+Armazena valores fixos que não mudam — como o mapeamento de cores por tipo.
+```typescript
+// CONST/colorsByType.ts
+export const colorsByType: IcolorByTypes = {
+  fire: "#EE8130",
+  water: "#6390F0",
+  ...
+}
+```
 
-Join our community of developers creating universal apps.
+### `styles/`
+Mantém os `StyleSheet` fora dos componentes, deixando as telas focadas apenas na estrutura visual.
+```typescript
+// styles/index.styles.ts
+export const styles = StyleSheet.create({ ... })
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Fluxo de dados
+```
+API
+ └── service      # busca os dados
+      └── hook    # gerencia o estado
+           └── screen  # renderiza a UI
+```
+
+## Princípio geral
+
+Cada camada tem uma única responsabilidade. A tela não sabe como os dados são buscados, o service não sabe que o React existe.
