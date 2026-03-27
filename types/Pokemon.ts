@@ -13,3 +13,25 @@ export interface PokemonTypes {
         url: string
     }
 }
+
+export interface IcolorByTypes {
+    grass: string
+    fire: string
+    water: string
+    bug: string
+    dark: string
+    dragon: string
+    electric: string
+    fairy: string
+    fighting: string
+    flying: string
+    ghost: string
+    ground: string
+    ice: string
+    normal: string
+    poison: string
+    psychic: string
+    rock: string
+    steel: string
+    unknown: string
+}
