@@ -1,53 +1,35 @@
 import { colorsByType } from "@/CONST/colorsByType";
-import { IcolorByTypes, PokemonDetails } from "@/types/Pokemon";
+import { IcolorByTypes } from "@/types/Pokemon";
 import { Link } from "expo-router";
-import { useEffect, useState } from "react";
-import { Image, ScrollView, Text, View, } from "react-native";
+import { FlatList, Image, ScrollView, Text, View, } from "react-native";
 import { styles } from "@/styles/index.styles";
+import { usePokemons } from "@/hooks/usePokemons";
 
 
 export default function Index() {
 
-  const [pokemons, setPokemons] = useState<PokemonDetails[]>([]);
+  const { pokemons, loading, error } = usePokemons();
 
-  useEffect(() => {
-    fetchPokemons();
-  }, [])
-
-
-  async function fetchPokemons() {
-    try {
-      const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=20');
-      const data = await response.json();
-
-      const detailedPokemons = await Promise.all(
-        data.results.map(async (pokemon: PokemonDetails) => {
-          const res = await fetch(pokemon.url);
-          const details = await res.json();
-          return {
-            name: pokemon.name,
-            image: details.sprites.front_default,
-            imageBack: details.sprites.back_default,
-            types: details.types
-          }
-        })
-      )
-      setPokemons(detailedPokemons);
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  if (loading) return <Text>Carregando...</Text>;
+  if (error) return <Text>{error}</Text>;
 
   return (
-    <ScrollView style={styles.scrollView} contentContainerStyle={styles.container}>
-      {pokemons.map((pokemon) => (
-        <Link href={"/details"} key={pokemon.name}>
-          <View
-            style={[
-              styles.card,
-              { backgroundColor: colorsByType[pokemon.types[0].type.name as keyof IcolorByTypes] + '60' }
-            ]}
-          >
+    <FlatList
+      style={styles.scrollView}
+      contentContainerStyle={styles.container}
+      data={pokemons}
+      keyExtractor={(pokemon) => pokemon.name}
+      renderItem={({ item: pokemon }) => (
+
+        <Link
+          style={[
+            styles.card,
+            { backgroundColor: colorsByType[pokemon.types[0].type.name as keyof IcolorByTypes] + '60' }
+          ]}
+          href={{ pathname: "/details", params: { name: pokemon.name } }}
+        >
+
+          <View>
             <Text style={styles.name}>{pokemon.name}</Text>
             <View style={styles.typesContainer}>
               {pokemon.types.map((typeObj) => (
@@ -60,8 +42,7 @@ export default function Index() {
             </View>
           </View>
         </Link>
-      ))}
-    </ScrollView>
-  );
+      )}
+    />
+  )
 }
-
