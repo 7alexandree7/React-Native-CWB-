@@ -64,7 +64,8 @@ API
 
 ## Princípio geral
 
-<img width="296" height="429" alt="image" src="https://github.com/user-attachments/assets/061b6b33-65c3-43d3-ba56-18bbbc03f8bf" />
-
 
 Cada camada tem uma única responsabilidade. A tela não sabe como os dados são buscados, o service não sabe que o React existe.
+
+
+<img width="296" height="429" alt="image" src="https://github.com/user-attachments/assets/061b6b33-65c3-43d3-ba56-18bbbc03f8bf" />
